@@ -1,0 +1,6 @@
+<resources>
+    <string name="app_name">Formula</string>
+    <string name="value">Введіть значення...</string>
+    <string name="addValue">Додати значення</string>
+    <string name="calculateValue">Розрахувати</string>
+</resources>

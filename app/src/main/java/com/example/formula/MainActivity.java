@@ -12,8 +12,10 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
+import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
@@ -21,7 +23,6 @@ public class MainActivity extends AppCompatActivity {
 
     static SortedMap<Integer, Float> settings;
     private TextView resultView, stackView;
-    String stackSaved, resultSaved;
 
 
     @Override
@@ -58,20 +59,20 @@ public class MainActivity extends AppCompatActivity {
         Button removeButton = findViewById(R.id.remove_btn);
         resultView = findViewById(R.id.result);
         stackView = findViewById(R.id.stack);
-        // При зміні конфігурації
+        // При зміні конфігурації введені раніше значення вводяться повторно
         if (savedInstanceState != null) {
-            stackSaved = savedInstanceState.getString("stackSaved");
-            resultSaved = savedInstanceState.getString("resultSaved");
+            float[] savedInstanceStateFloatArray = savedInstanceState.getFloatArray("floatArray");
 
-            stackView.setText(stackSaved);
-            resultView.setText(resultSaved);
+            for (float v : savedInstanceStateFloatArray) {
+                addValue(v);
+            }
         }
 
         //Слухачі кнопок
         addButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                addValue();
+                addValue(0);
             }
         });
 
@@ -94,18 +95,23 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
-        outState.putString("resultSaved", resultSaved);
-        outState.putString("stackSaved", stackSaved);
+        outState.putFloatArray("floatArray", savedValues());
     }
 
+
     // Reworked adding code
-    private void addValue() {
+    private void addValue(float value) {
         EditText text = findViewById(R.id.edit_view);
         String temp;
         try {
             int id = 1;
-            temp = text.getText().toString();
-            float inputValue = Float.parseFloat(temp);
+            float inputValue;
+            if (value == 0) {
+                temp = text.getText().toString();
+                inputValue = Float.parseFloat(temp);
+            } else {
+                inputValue = value;
+            }
             if (settings.size() != 0) {
                 while (settings.containsKey(id)) {
                     id++;
@@ -117,7 +123,6 @@ public class MainActivity extends AppCompatActivity {
             settings.put(id, inputValue);
 
             stackView.setText(settings.toString());
-            stackSaved = settings.toString();
             calcValue(settings.size());
         } catch (NumberFormatException e) {
             CharSequence err = "Невірний формат";
@@ -144,7 +149,6 @@ public class MainActivity extends AppCompatActivity {
             equation = 1 / tempResult;
             result = equation.toString();
         }
-        resultSaved = result;
         resultView.setText(result);
     }
 
@@ -153,7 +157,6 @@ public class MainActivity extends AppCompatActivity {
             int last = settings.lastKey();
             settings.remove(last);
             stackView.setText(settings.toString());
-            stackSaved = settings.toString();
             calcValue(settings.size());
         } catch (NoSuchElementException e) {
             Toast.makeText(this, "Не введено жодного значення", Toast.LENGTH_SHORT).show();
@@ -165,5 +168,17 @@ public class MainActivity extends AppCompatActivity {
         resultView.setText("");
         stackView.setText("");
         settings.clear();
+    }
+
+    // Зберегти значення перед знищенням активності
+    private float[] savedValues() {
+        Collection<Float> values = settings.values();
+        float[] valuesStorage = new float[settings.size()];
+        int i = 0;
+        for (float a : values) {
+            valuesStorage[i] = a;
+            i++;
+        }
+        return valuesStorage;
     }
 }

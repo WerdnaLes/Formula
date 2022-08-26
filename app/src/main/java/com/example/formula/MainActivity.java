@@ -19,28 +19,7 @@ import java.util.TreeMap;
 
 public class MainActivity extends AppCompatActivity {
 
-    static SortedMap<Integer, Float> settings = new TreeMap<Integer, Float>() {
-        @NonNull
-        @Override
-        public String toString() {
-            Iterator<Entry<Integer, Float>> i = entrySet().iterator();
-            if (!i.hasNext())
-                return "{}";
-
-            StringBuilder sb = new StringBuilder();
-            while (i.hasNext()) {
-                Entry<Integer, Float> e = i.next();
-                Integer key = e.getKey();
-                Float value = e.getValue();
-                sb.append('R');
-                sb.append(key);
-                sb.append('=');
-                sb.append(value);
-                sb.append('\n');
-            }
-            return sb.toString();
-        }
-    };
+    static SortedMap<Integer, Float> settings;
     private TextView resultView, stackView;
     String stackSaved, resultSaved;
 
@@ -50,11 +29,36 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        // Перевизначення toString() класу TreeMap<>
+        settings = new TreeMap<Integer, Float>() {
+            @NonNull
+            @Override
+            public String toString() {
+                Iterator<Entry<Integer, Float>> i = entrySet().iterator();
+                if (!i.hasNext())
+                    return "{}";
+
+                StringBuilder sb = new StringBuilder();
+                while (i.hasNext()) {
+                    Entry<Integer, Float> e = i.next();
+                    Integer key = e.getKey();
+                    Float value = e.getValue();
+                    sb.append('R');
+                    sb.append(key);
+                    sb.append('=');
+                    sb.append(value);
+                    sb.append('\n');
+                }
+                return sb.toString();
+            }
+        };
+        // Присвоєння змінних
         Button addButton = findViewById(R.id.add_btn);
         Button resetButton = findViewById(R.id.reset_btn);
         Button removeButton = findViewById(R.id.remove_btn);
         resultView = findViewById(R.id.result);
         stackView = findViewById(R.id.stack);
+        // При зміні конфігурації
         if (savedInstanceState != null) {
             stackSaved = savedInstanceState.getString("stackSaved");
             resultSaved = savedInstanceState.getString("resultSaved");
@@ -63,6 +67,7 @@ public class MainActivity extends AppCompatActivity {
             resultView.setText(resultSaved);
         }
 
+        //Слухачі кнопок
         addButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

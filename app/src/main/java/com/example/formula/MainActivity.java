@@ -4,25 +4,22 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.FrameLayout;
+import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.FragmentTransaction;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.NoSuchElementException;
-import java.util.Set;
-import java.util.SortedMap;
-import java.util.TreeMap;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity
+implements StackListFragment.ListChanged{
 
-    static SortedMap<Integer, Float> settings;
-    private TextView resultView, stackView;
+    private TextView resultView;
 
 
     @Override
@@ -30,35 +27,11 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        // Перевизначення toString() класу TreeMap<>
-        settings = new TreeMap<Integer, Float>() {
-            @NonNull
-            @Override
-            public String toString() {
-                Iterator<Entry<Integer, Float>> i = entrySet().iterator();
-                if (!i.hasNext())
-                    return "{}";
-
-                StringBuilder sb = new StringBuilder();
-                while (i.hasNext()) {
-                    Entry<Integer, Float> e = i.next();
-                    Integer key = e.getKey();
-                    Float value = e.getValue();
-                    sb.append('R');
-                    sb.append(key);
-                    sb.append('=');
-                    sb.append(value);
-                    sb.append('\n');
-                }
-                return sb.toString();
-            }
-        };
         // Присвоєння змінних
         Button addButton = findViewById(R.id.add_btn);
         Button resetButton = findViewById(R.id.reset_btn);
         Button removeButton = findViewById(R.id.remove_btn);
         resultView = findViewById(R.id.result);
-        stackView = findViewById(R.id.stack);
         // При зміні конфігурації введені раніше значення вводяться повторно
         if (savedInstanceState != null) {
             float[] savedInstanceStateFloatArray = savedInstanceState.getFloatArray("floatArray");
@@ -89,7 +62,6 @@ public class MainActivity extends AppCompatActivity {
                 onRemoveValue();
             }
         });
-
     }
 
     @Override
@@ -98,6 +70,11 @@ public class MainActivity extends AppCompatActivity {
         outState.putFloatArray("floatArray", savedValues());
     }
 
+    @Override
+    public void onListChanged() {
+        onSizeChanged();
+        calcValue(Database.stackValues.size());
+    }
 
     // Reworked adding code
     private void addValue(float value) {
@@ -112,18 +89,17 @@ public class MainActivity extends AppCompatActivity {
             } else {
                 inputValue = value;
             }
-            if (settings.size() != 0) {
-                while (settings.containsKey(id)) {
+            if (Database.stackValues.size() != 0) {
+                while (Database.stackValues.containsKey(id)) {
                     id++;
-                    if (!settings.containsKey(id)) {
+                    if (!Database.stackValues.containsKey(id)) {
                         break;
                     }
                 }
             }
-            settings.put(id, inputValue);
-
-            stackView.setText(settings.toString());
-            calcValue(settings.size());
+            Database.stackValues.put(id, inputValue);
+            onSizeChanged();
+            calcValue(Database.stackValues.size());
         } catch (NumberFormatException e) {
             CharSequence err = "Невірний формат";
             int duration = Toast.LENGTH_SHORT;
@@ -137,13 +113,16 @@ public class MainActivity extends AppCompatActivity {
     private void calcValue(int mapSize) {
         String result;
         if (mapSize == 1) {
-            result = settings.get(1).toString();
+            result = Database.stackValues.get(1).toString();
         } else {
             float tempResult = 0;
             Float equation;
             for (int i = 0; i < mapSize; i++) {
                 int id = i + 1;
-                float temp = 1 / settings.get(id);
+                float temp = 0;
+                if (Database.stackValues.get(id) != null) {
+                    temp = 1 / Database.stackValues.get(id);
+                }
                 tempResult = tempResult + temp;
             }
             equation = 1 / tempResult;
@@ -154,10 +133,10 @@ public class MainActivity extends AppCompatActivity {
 
     private void onRemoveValue() {
         try {
-            int last = settings.lastKey();
-            settings.remove(last);
-            stackView.setText(settings.toString());
-            calcValue(settings.size());
+            int last = Database.stackValues.lastKey();
+            Database.stackValues.remove(last);
+            onSizeChanged();
+            calcValue(Database.stackValues.size());
         } catch (NoSuchElementException e) {
             Toast.makeText(this, "Не введено жодного значення", Toast.LENGTH_SHORT).show();
         }
@@ -166,19 +145,29 @@ public class MainActivity extends AppCompatActivity {
 
     private void onReset() {
         resultView.setText("");
-        stackView.setText("");
-        settings.clear();
+        Database.stackValues.clear();
+        Database.backupValues.clear();
+        onSizeChanged();
     }
-
     // Зберегти значення перед знищенням активності
+
     private float[] savedValues() {
-        Collection<Float> values = settings.values();
-        float[] valuesStorage = new float[settings.size()];
+        Collection<Float> values = Database.stackValues.values();
+        float[] valuesStorage = new float[Database.stackValues.size()];
         int i = 0;
         for (float a : values) {
             valuesStorage[i] = a;
             i++;
         }
         return valuesStorage;
+    }
+
+    private void onSizeChanged() {
+        FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+        StackListFragment stackListFragment = new StackListFragment();
+        ft.replace(R.id.frameLayout_fl, stackListFragment);
+        ft.addToBackStack(null);
+        ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
+        ft.commit();
     }
 }

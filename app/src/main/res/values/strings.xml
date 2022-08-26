@@ -3,4 +3,11 @@
     <string name="value">Введіть значення...</string>
     <string name="addValue">Додати значення</string>
     <string name="calculateValue">Розрахувати</string>
+    <string-array name="testStrings">
+        <item>something</item>
+        <item>else</item>
+        <item>typed</item>
+    </string-array>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>

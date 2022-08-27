@@ -71,8 +71,8 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void onListChanged() {
-        onSizeChanged();
         calcValue(Database.stackValues.size());
+        onSizeChanged();
     }
 
     // Reworked adding code
@@ -87,8 +87,8 @@ public class MainActivity extends AppCompatActivity
             // Додати значення до масиву
             Database.addValue(id, inputValue);
             // Оновити список стеків при зміні масиву
-            onSizeChanged();
             calcValue(Database.stackValues.size());
+            onSizeChanged();
         } catch (NumberFormatException e) {
             CharSequence err = "Невірний формат";
             int duration = Toast.LENGTH_SHORT;
@@ -109,8 +109,8 @@ public class MainActivity extends AppCompatActivity
         try {
             int last = Database.stackValues.lastKey();
             Database.stackValues.remove(last);
-            onSizeChanged();
             calcValue(Database.stackValues.size());
+            onSizeChanged();
         } catch (NoSuchElementException e) {
             Toast.makeText(this, "Не введено жодного значення", Toast.LENGTH_SHORT).show();
         }

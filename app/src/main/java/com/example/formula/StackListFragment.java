@@ -22,7 +22,7 @@ public class StackListFragment extends ListFragment {
     private ArrayList<String> listView;
     private ListChanged listener;
 
-    interface ListChanged{
+    interface ListChanged {
         void onListChanged();
     }
 
@@ -32,7 +32,7 @@ public class StackListFragment extends ListFragment {
         listView = new ArrayList<>();
         fillListView(Database.stackValues);
 
-        ArrayAdapter<String> listAdapter = new ArrayAdapter<String>(
+        ArrayAdapter<String> listAdapter = new ArrayAdapter<>(
                 inflater.getContext(), android.R.layout.simple_list_item_1, listView);
         setListAdapter(listAdapter);
 
@@ -42,7 +42,7 @@ public class StackListFragment extends ListFragment {
     @Override
     public void onAttach(@NonNull Activity activity) {
         super.onAttach(activity);
-        this.listener=(ListChanged) activity;
+        this.listener = (ListChanged) activity;
     }
 
     @Override
@@ -51,11 +51,11 @@ public class StackListFragment extends ListFragment {
         int stackId = (int) id + 1;
         if (Database.stackValues.get(stackId) != null) {
             Float oldValue = Database.stackValues.get(stackId);
-            Database.backupValues.put((int) id, oldValue);
+            Database.backupValues.put(stackId, oldValue);
             Database.stackValues.put(stackId, null);
         } else {
-            Database.stackValues.put(stackId, Database.backupValues.get((int) id));
-            fillListView(Database.stackValues);
+            Database.stackValues.put(stackId, Database.backupValues.get(stackId));
+            Database.backupValues.remove(stackId);
         }
         listener.onListChanged();
     }

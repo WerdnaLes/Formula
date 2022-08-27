@@ -10,7 +10,7 @@ import java.util.TreeMap;
 
 public class Database {
 
-    public static SortedMap<Integer,Float> backupValues = new TreeMap<>();
+    public static SortedMap<Integer, Float> backupValues = new TreeMap<>();
 
     public static SortedMap<Integer, Float> stackValues = new TreeMap<Integer, Float>() {
         @NonNull
@@ -50,7 +50,10 @@ public class Database {
     public static String calcValue(int mapSize) {
         String result;
         if (mapSize == 1) {
-            result = Objects.requireNonNull(stackValues.get(1)).toString();
+            if (stackValues.get(1) == null) {
+                result = "0.0";
+            } else
+                result = stackValues.get(1).toString();
         } else {
             float tempResult = 0;
             float equation;
@@ -61,6 +64,9 @@ public class Database {
                     temp = 1 / stackValues.get(id);
                 }
                 tempResult = tempResult + temp;
+            }
+            if (tempResult == 0.0) {
+                return Float.toString(tempResult);
             }
             equation = 1 / tempResult;
             result = Float.toString(equation);

@@ -71,6 +71,9 @@ public class StackListFragment extends ListFragment {
             sb.append(key);
             sb.append('=');
             sb.append(value);
+            if (value == null) {
+                sb.append("(").append(Database.backupValues.get(key)).append(")");
+            }
             listView.add(sb.toString());
             sb.delete(0, sb.length());
         }

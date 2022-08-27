@@ -10,7 +10,13 @@ import java.util.TreeMap;
 
 public class Database {
 
-    public static SortedMap<Integer, Float> backupValues = new TreeMap<>();
+    public static SortedMap<Integer, Float> backupValues = new TreeMap<Integer, Float>(){
+        @NonNull
+        @Override
+        public String toString() {
+            return super.toString();
+        }
+    };
 
     public static SortedMap<Integer, Float> stackValues = new TreeMap<Integer, Float>() {
         @NonNull

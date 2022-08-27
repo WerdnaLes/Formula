@@ -64,6 +64,16 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
+    protected void onResume() {
+        super.onResume();
+        int size = Database.stackValues.size();
+        if (size > 0) {
+            calcValue(size);
+            onSizeChanged();
+        }
+    }
+
+    @Override
     protected void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putString("savedResult", savedResult);

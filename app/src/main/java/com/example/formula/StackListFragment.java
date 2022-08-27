@@ -53,12 +53,11 @@ public class StackListFragment extends ListFragment {
             Float oldValue = Database.stackValues.get(stackId);
             Database.backupValues.put((int) id, oldValue);
             Database.stackValues.put(stackId, null);
-            listener.onListChanged();
         } else {
             Database.stackValues.put(stackId, Database.backupValues.get((int) id));
             fillListView(Database.stackValues);
-            listener.onListChanged();
         }
+        listener.onListChanged();
     }
 
     private void fillListView(SortedMap<Integer, Float> vals) {

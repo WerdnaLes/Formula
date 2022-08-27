@@ -15,11 +15,13 @@ import androidx.fragment.app.FragmentTransaction;
 
 import java.util.Collection;
 import java.util.NoSuchElementException;
+import java.util.Objects;
 
 public class MainActivity extends AppCompatActivity
-implements StackListFragment.ListChanged{
+        implements StackListFragment.ListChanged {
 
     private TextView resultView;
+    private String savedResult;
 
 
     @Override
@@ -32,20 +34,17 @@ implements StackListFragment.ListChanged{
         Button resetButton = findViewById(R.id.reset_btn);
         Button removeButton = findViewById(R.id.remove_btn);
         resultView = findViewById(R.id.result);
-        // При зміні конфігурації введені раніше значення вводяться повторно
+        // При зміні конфігурації
         if (savedInstanceState != null) {
-            float[] savedInstanceStateFloatArray = savedInstanceState.getFloatArray("floatArray");
-
-            for (float v : savedInstanceStateFloatArray) {
-                addValue(v);
-            }
+            savedResult = savedInstanceState.getString("savedResult");
+            resultView.setText(savedResult);
         }
 
         //Слухачі кнопок
         addButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                addValue(0);
+                addValue();
             }
         });
 
@@ -67,7 +66,7 @@ implements StackListFragment.ListChanged{
     @Override
     protected void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
-        outState.putFloatArray("floatArray", savedValues());
+        outState.putString("savedResult", savedResult);
     }
 
     @Override
@@ -77,18 +76,14 @@ implements StackListFragment.ListChanged{
     }
 
     // Reworked adding code
-    private void addValue(float value) {
+    private void addValue() {
         EditText text = findViewById(R.id.edit_view);
         String temp;
         try {
             int id = 1;
             float inputValue;
-            if (value == 0) {
-                temp = text.getText().toString();
-                inputValue = Float.parseFloat(temp);
-            } else {
-                inputValue = value;
-            }
+            temp = text.getText().toString();
+            inputValue = Float.parseFloat(temp);
             if (Database.stackValues.size() != 0) {
                 while (Database.stackValues.containsKey(id)) {
                     id++;
@@ -113,10 +108,10 @@ implements StackListFragment.ListChanged{
     private void calcValue(int mapSize) {
         String result;
         if (mapSize == 1) {
-            result = Database.stackValues.get(1).toString();
+            result = Objects.requireNonNull(Database.stackValues.get(1)).toString();
         } else {
             float tempResult = 0;
-            Float equation;
+            float equation;
             for (int i = 0; i < mapSize; i++) {
                 int id = i + 1;
                 float temp = 0;
@@ -126,8 +121,9 @@ implements StackListFragment.ListChanged{
                 tempResult = tempResult + temp;
             }
             equation = 1 / tempResult;
-            result = equation.toString();
+            result = Float.toString(equation);
         }
+        savedResult = result;
         resultView.setText(result);
     }
 
@@ -149,24 +145,11 @@ implements StackListFragment.ListChanged{
         Database.backupValues.clear();
         onSizeChanged();
     }
-    // Зберегти значення перед знищенням активності
-
-    private float[] savedValues() {
-        Collection<Float> values = Database.stackValues.values();
-        float[] valuesStorage = new float[Database.stackValues.size()];
-        int i = 0;
-        for (float a : values) {
-            valuesStorage[i] = a;
-            i++;
-        }
-        return valuesStorage;
-    }
 
     private void onSizeChanged() {
         FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
         StackListFragment stackListFragment = new StackListFragment();
         ft.replace(R.id.frameLayout_fl, stackListFragment);
-        ft.addToBackStack(null);
         ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
         ft.commit();
     }

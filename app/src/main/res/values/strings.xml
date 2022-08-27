@@ -3,6 +3,7 @@
     <string name="value">Введіть значення...</string>
     <string name="addValue">Додати значення</string>
     <string name="calculateValue">Розрахувати</string>
+    <string name="new_app_name">Resistor Calculator</string>
     <string-array name="testStrings">
         <item>something</item>
         <item>else</item>
@@ -10,4 +11,6 @@
     </string-array>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="resetAll">Скинути</string>
+    <string name="removeValue">Відняти значення</string>
 </resources>

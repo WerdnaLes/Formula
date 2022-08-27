@@ -84,15 +84,9 @@ public class MainActivity extends AppCompatActivity
             float inputValue;
             temp = text.getText().toString();
             inputValue = Float.parseFloat(temp);
-            if (Database.stackValues.size() != 0) {
-                while (Database.stackValues.containsKey(id)) {
-                    id++;
-                    if (!Database.stackValues.containsKey(id)) {
-                        break;
-                    }
-                }
-            }
-            Database.stackValues.put(id, inputValue);
+            // Додати значення до масиву
+            Database.addValue(id, inputValue);
+            // Оновити список стеків при зміні масиву
             onSizeChanged();
             calcValue(Database.stackValues.size());
         } catch (NumberFormatException e) {
@@ -106,23 +100,7 @@ public class MainActivity extends AppCompatActivity
 
     // Reworked calc
     private void calcValue(int mapSize) {
-        String result;
-        if (mapSize == 1) {
-            result = Objects.requireNonNull(Database.stackValues.get(1)).toString();
-        } else {
-            float tempResult = 0;
-            float equation;
-            for (int i = 0; i < mapSize; i++) {
-                int id = i + 1;
-                float temp = 0;
-                if (Database.stackValues.get(id) != null) {
-                    temp = 1 / Database.stackValues.get(id);
-                }
-                tempResult = tempResult + temp;
-            }
-            equation = 1 / tempResult;
-            result = Float.toString(equation);
-        }
+        String result = Database.calcValue(mapSize);
         savedResult = result;
         resultView.setText(result);
     }
